@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Distance Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .clear-btn:hover {
+            background: #c53030;
+            transform: scale(1.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .grid-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        .grid {
+            font-family: 'Courier New', monospace;
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .grid td, .grid th {
+            padding: 8px 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            min-width: 30px;
+            font-weight: 600;
+        }
+
+        .grid th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+        }
+
+        .grid .corner-cell {
+            background: #4a5568;
+            color: white;
+            font-weight: 700;
+        }
+
+        .grid .top-word {
+            background: #48bb78;
+            color: white;
+            font-weight: 700;
+        }
+
+        .grid .left-word {
+            background: #ed8936;
+            color: white;
+            font-weight: 700;
+        }
+
+        .grid .data-cell {
+            background: #e6fffa;
+            color: #2d3748;
+            transition: all 0.2s ease;
+        }
+
+        .grid .data-cell:hover {
+            background: #b2f5ea;
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .error {
+            color: #e53e3e;
+            background: #fed7d7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .distance-result {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 8px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔢 String Distance Calculator</h1>
+
+        <form id="distanceForm">
+            <div class="input-group">
+                <label for="stringA">First String:</label>
+                <div class="input-container">
+                    <input type="text" id="stringA" name="stringA" placeholder="Enter first string...">
+                    <button type="button" class="clear-btn" onclick="clearInput('stringA')" title="Clear">×</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="stringB">Second String:</label>
+                <div class="input-container">
+                    <input type="text" id="stringB" name="stringB" placeholder="Enter second string...">
+                    <button type="button" class="clear-btn" onclick="clearInput('stringB')" title="Clear">×</button>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Calculate Distance</button>
+        </form>
+
+        <div id="result" class="result-container" style="display: none;">
+            <div id="distance-display" class="distance-result"></div>
+            <div id="grid-container" class="grid-container"></div>
+        </div>
+    </div>
+
+    <script>
+        function clearInput(inputId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(inputId).focus();
+        }
+
+        function displayGrid(grid, stringA, stringB) {
+            const container = document.getElementById('grid-container');
+
+            // Calculate edit distance (bottom-right cell)
+            const distance = grid[grid.length - 1][grid[0].length - 1];
+            document.getElementById('distance-display').innerHTML =
+                `Edit Distance: <strong>${distance}</strong>`;
+
+            let html = '<table class="grid">';
+
+            // Header row with characters from string B
+            html += '<tr><td class="corner-cell"></td><td class="top-word">-</td>';
+            for (let i = 0; i < stringB.length; i++) {
+                html += `<td class="top-word">${stringB[i]}</td>`;
+            }
+            html += '</tr>';
+
+            // Row with indices
+            html += '<tr><td class="left-word">-</td>';
+            for (let i = 0; i <= stringB.length; i++) {
+                html += `<td class="data-cell">${i}</td>`;
+            }
+            html += '</tr>';
+
+            // Data rows
+            for (let i = 0; i < stringA.length; i++) {
+                html += '<tr>';
+                html += `<td class="left-word">${stringA[i]}</td>`;
+                html += `<td class="data-cell">${i + 1}</td>`;
+                for (let j = 0; j < stringB.length; j++) {
+                    html += `<td class="data-cell">${grid[i + 1][j + 1]}</td>`;
+                }
+                html += '</tr>';
+            }
+
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        document.getElementById('distanceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const stringA = document.getElementById('stringA').value;
+            const stringB = document.getElementById('stringB').value;
+
+            if (!stringA.trim() || !stringB.trim()) {
+                alert('Please enter both strings');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="loading">Calculating distance...</div>';
+
+            try {
+                const response = await fetch('/enter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        a: stringA,
+                        b: stringB
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const grid = await response.json();
+
+                resultDiv.innerHTML = `
+                    <div id="distance-display" class="distance-result"></div>
+                    <div id="grid-container" class="grid-container"></div>
+                `;
+
+                displayGrid(grid, stringA, stringB);
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = '<div class="error">Error calculating distance. Please try again.</div>';
+            }
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('distanceForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

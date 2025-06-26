@@ -1,7 +1,14 @@
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 from main import Pair
+
+
+class StringPair(BaseModel):
+    a: str
+    b: str
+
 
 pair = Pair("", "")
 app = FastAPI()
@@ -13,7 +20,7 @@ async def get_ui():
 
 
 @app.post("/enter")
-async def enter(a, b):
+async def enter(strings: StringPair):
     global pair
-    pair = Pair(a, b)
+    pair = Pair(strings.a, strings.b)
     return pair.calc_distance()
